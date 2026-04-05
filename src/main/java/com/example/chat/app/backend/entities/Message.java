@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,11 +17,11 @@ public class Message {
 
     private String sender;
     private String content;
-    private LocalDateTime timeStamp;
+    private Instant timeStamp;
 
     public Message(String sender, String content, LocalDateTime timeStamp) {
         this.sender = sender;
         this.content = content;
-        this.timeStamp = LocalDateTime.now();
+        this.timeStamp = Instant.now();
     }
 }
