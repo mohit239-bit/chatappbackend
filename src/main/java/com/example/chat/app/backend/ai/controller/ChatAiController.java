@@ -1,6 +1,5 @@
 package com.example.chat.app.backend.ai.controller;
 
-import com.example.chat.app.backend.Config.AppConstants;
 import com.example.chat.app.backend.ai.dto.ApiErrorResponse;
 import com.example.chat.app.backend.ai.dto.ProcessMessageRequest;
 import com.example.chat.app.backend.ai.dto.ProcessedMessageResponse;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/ai")
-@CrossOrigin(origins = "*")
 public class ChatAiController {
 
     private final ChatAiService chatAiService;
@@ -39,15 +37,16 @@ public class ChatAiController {
     @GetMapping("/rooms/{roomId}/suggestions")
     public ResponseEntity<?> getReplySuggestions(
             @PathVariable String roomId,
-            @RequestHeader(value = "X-Current-User", defaultValue = "Anonymous") String currentUser
+            java.security.Principal currentUser
     ) {
-        if (!rateLimiterService.tryAcquireSuggestion(currentUser, roomId)) {
+        String userName = currentUser.getName();
+        if (!rateLimiterService.tryAcquireSuggestion(userName, roomId)) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .body(new ApiErrorResponse("RATE_LIMIT_EXCEEDED", "Too many suggestion requests. Please try again in a minute."));
         }
 
-        String conversationContext = chatContextService.getFormattedRecentMessages(roomId, currentUser);
-        ReplySuggestionsResponse suggestions = chatAiService.generateReplySuggestions(conversationContext, currentUser);
+        String conversationContext = chatContextService.getFormattedRecentMessages(roomId, userName);
+        ReplySuggestionsResponse suggestions = chatAiService.generateReplySuggestions(conversationContext, userName);
 
         return ResponseEntity.ok(suggestions);
     }
@@ -59,8 +58,9 @@ public class ChatAiController {
     @PostMapping("/process-message")
     public ResponseEntity<?> processMessage(
             @Valid @RequestBody ProcessMessageRequest request,
-            @RequestHeader(value = "X-Current-User", defaultValue = "Anonymous") String currentUser
+            java.security.Principal currentUser
     ) {
+        String userName = currentUser.getName();
         String draft = request.message().trim();
 
         // Guard against unnecessary AI processing (too short, single emoji, pure URL)
@@ -70,7 +70,7 @@ public class ChatAiController {
             ));
         }
 
-        if (!rateLimiterService.tryAcquireDraftProcessing(currentUser)) {
+        if (!rateLimiterService.tryAcquireDraftProcessing(userName)) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .body(new ApiErrorResponse("RATE_LIMIT_EXCEEDED", "Too many draft processing requests. Please try again in a minute."));
         }

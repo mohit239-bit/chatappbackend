@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ChatAiController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @ContextConfiguration(classes = {ChatAiController.class, GlobalExceptionHandler.class})
 class ChatAiControllerTest {
 
@@ -61,7 +63,7 @@ class ChatAiControllerTest {
                 .thenReturn(new ReplySuggestionsResponse(List.of("Hello Bob!", "How are you?", "What's up?")));
 
         mockMvc.perform(get("/api/v1/ai/rooms/room123/suggestions")
-                        .header("X-Current-User", "Alice"))
+                        .principal(() -> "Alice"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.suggestions[0]").value("Hello Bob!"))
                 .andExpect(jsonPath("$.suggestions.length()").value(3));
@@ -72,7 +74,7 @@ class ChatAiControllerTest {
         when(rateLimiterService.tryAcquireSuggestion(anyString(), anyString())).thenReturn(false);
 
         mockMvc.perform(get("/api/v1/ai/rooms/room123/suggestions")
-                        .header("X-Current-User", "Alice"))
+                        .principal(() -> "Alice"))
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.code").value("RATE_LIMIT_EXCEEDED"));
     }
@@ -87,7 +89,7 @@ class ChatAiControllerTest {
         when(chatAiService.processMessage("Mujhe help chahiye")).thenReturn(resp);
 
         mockMvc.perform(post("/api/v1/ai/process-message")
-                        .header("X-Current-User", "Alice")
+                        .principal(() -> "Alice")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
@@ -101,7 +103,7 @@ class ChatAiControllerTest {
         ProcessMessageRequest req = new ProcessMessageRequest("");
 
         mockMvc.perform(post("/api/v1/ai/process-message")
-                        .header("X-Current-User", "Alice")
+                        .principal(() -> "Alice")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest())

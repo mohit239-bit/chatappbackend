@@ -1,8 +1,6 @@
 package com.example.chat.app.backend.Controller;
 
 
-import com.example.chat.app.backend.Config.AppConstants;
-import com.example.chat.app.backend.Respository.RoomRepository;
 import com.example.chat.app.backend.Service.RoomService;
 import com.example.chat.app.backend.entities.Message;
 import com.example.chat.app.backend.entities.Room;
@@ -16,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/rooms")
-@CrossOrigin(AppConstants.FRONT_END_BASE_URI)
 public class RoomController {
 
     @Autowired
