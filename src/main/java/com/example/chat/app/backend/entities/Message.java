@@ -15,9 +15,12 @@ import java.time.LocalDateTime;
 @Document(collection = "messages")
 public class Message {
 
+    private String id;
+    private String senderId;
     private String sender;
     private String content;
     private Instant timeStamp;
+    private Instant updatedAt;
 
     public Message(String sender, String content, LocalDateTime timeStamp) {
         this.sender = sender;
