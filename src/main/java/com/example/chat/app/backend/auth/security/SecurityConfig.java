@@ -35,6 +35,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/google",
                                 "/api/v1/auth/logout",
                                 "/chat/**",
+                                "/actuator/health",
                                 "/error"
                         ).permitAll()
                         .anyRequest().authenticated())

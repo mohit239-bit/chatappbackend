@@ -43,6 +43,9 @@ public class ChatController {
         Message message = new Message();
         message.setId(UUID.randomUUID().toString());
         message.setContent(request.getContent());
+        if (request.getAttachments() != null) {
+            message.setAttachments(request.getAttachments());
+        }
         message.setSender(user.name());
         message.setSenderId(user.id());
         message.setTimeStamp(Instant.now());

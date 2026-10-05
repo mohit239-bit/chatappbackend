@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: chat-app-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_DATA_MONGODB_URI
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: APP_AUTH_JWT_SECRET
+        sync: false
+      - key: APP_AUTH_JWT_EXPIRATION_MINUTES
+        value: "60"
+      - key: APP_AUTH_WEBSOCKET_TOKEN_EXPIRATION_MINUTES
+        value: "2"
+      - key: APP_AUTH_COOKIE_SECURE
+        value: "true"
+      - key: APP_AUTH_COOKIE_SAME_SITE
+        value: "None"
+      - key: APP_CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false

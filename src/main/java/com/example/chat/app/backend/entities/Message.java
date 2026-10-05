@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,6 +21,7 @@ public class Message {
     private String senderId;
     private String sender;
     private String content;
+    private List<Attachment> attachments = new ArrayList<>();
     private Instant timeStamp;
     private Instant updatedAt;
 
